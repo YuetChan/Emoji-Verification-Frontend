@@ -1,13 +1,150 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Test2</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Emoji Verification</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  </head>
+  <body>
+      <app-root></app-root>
+      <p id="errorMsg"></p>
+  </body>
+  <script>
+
+    var video;
+    var videoTracks;
+    var errorElement;
+
+    var canvas;
+    var ctx;
+
+    var bar;
+
+    function init(vid, cid, eid) {
+
+      video = document.getElementById(vid);
+
+      canvas = document.getElementById(cid);
+      ctx = canvas.getContext('2d');
+
+      errorElement = document.getElementById(eid);
+
+    }
+
+    function startFaceCapture(vid, cid, eid){
+
+      init(vid, cid, eid);
+
+      var constraints = window.constraints = {
+        audio: false,
+        video: true
+      };
+      navigator.mediaDevices.getUserMedia(constraints)
+      .then(function(webcamStream) {
+
+        videoTracks = webcamStream.getVideoTracks();
+        webcamStream.onremovetrack = function() {
+          console.log('Stream ended');
+        };
+
+        window.stream = webcamStream; // make variable available to browser console
+        video.srcObject = webcamStream;
+
+      }).catch(function(error) {
+
+        if (error.name === 'ConstraintNotSatisfiedError') {
+
+          errorMsg('The resolution ' + constraints.video.width.exact + 'x' +
+          constraints.video.width.exact + ' px is not supported by your device.');
+
+        }else if (error.name === 'PermissionDeniedError') {
+
+          errorMsg('Permissions have not been granted to use your camera and ' +
+            'microphone, you need to allow the page access to your devices in ' +
+            'order for the demo to work.');
+
+          }
+
+          errorMsg('getUserMedia error: ' + error.name, error);
+
+        });
+
+    }
+
+    function errorMsg(msg, error) {
+      errorElement.innerHTML += '<p>' + msg + '</p>';
+      if (typeof error !== 'undefined') {
+        console.log(error);
+      }
+    }
+
+    function stopCapture() {
+
+      videoTracks.forEach(function(track){
+
+        track.stop();
+
+      });
+
+    }
+
+    function snapshot() {
+
+      ctx.drawImage(video, 0, 50, 400, 300);
+
+      var dataUrl = canvas.toDataURL();
+      return dataUrl;
+
+    }
+
+    function startEmotionSequenceCapture(bid, dataUrls) {
+
+      bar = document.getElementById(bid);
+      console.log(bar);
+      var counter = 0;
+      var width = 0;
+
+      var pbId = setInterval(progressBar, 10);
+      var cfId = setInterval(captureFrame, 100);
+
+      function captureFrame() {
+
+        if (counter >= 100) {
+
+          clearInterval(cfId);
+          return dataUrls;
+
+        }else {
+
+          dataUrls.push(snapshot());
+          counter = counter + 1;
+
+        }
+
+      }
+
+      function progressBar() {
+
+        if (width >= 1000) {
+
+          clearInterval(pbId);
+          return;
+
+        }else {
+
+          console.log(width);
+
+          width = width + 1;
+          bar.style.width = width/10 + '%';
+
+        }
+
+      }
+
+    }
+
+  </script>
 </html>
