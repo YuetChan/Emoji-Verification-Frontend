@@ -1,0 +1,26 @@
+<div class="boardWrapper">
+  <h4>Emoji Verification</h4>
+  <hr>
+  <div style="text-align:center">
+    <video id="log-vid" controls autoplay ></video>
+    <canvas id="log-can" width=400 height=400 style="display:none"></canvas>
+  </div>
+  <hr>
+  <div>
+    <div class="progress" id="log-pro-bar"></div>
+    <div class="progress">
+      <div class="progress-bar bg-danger" style="width: 25%" ></div>
+      <div class="progress-bar bg-warning" style="width: 25%"></div>
+      <div class="progress-bar bg-info" style="width: 25%"></div>
+      <div class="progress-bar bg-success" style="width: 25%"></div>
+    </div>
+  </div>
+
+  <hr>
+  <div style="text-align:left" *ngIf="start">
+    <button class="btn btn-warning" type="button" (click)="startBar()">Start</button>
+  </div>
+  <div style="text-align:left" *ngIf="captured">
+    <button class="btn btn-warning" type="button" (click)="onSubmit()">Submit</button>
+  </div>
+</div>
